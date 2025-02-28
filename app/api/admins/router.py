@@ -70,7 +70,7 @@ async def set_role(
 
         _user_temp = create_admin(db, _admin)
 
-    return Response(code=201, success=True, message="successs", data=_user_temp).model_dump()
+    return Response(code=200, success=True, message="success", data=_user_temp).model_dump()
 
 
 @router.get("/get_Admins")
