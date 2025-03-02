@@ -9,7 +9,7 @@ from app.api.auth.crud import get_admin_from_by_login, get_student_from_by_login
 from app.api.schemas import LoginSchema, Response, StudentSchema
 from app.db import get_db
 from app.utils.auth_middleware import create_access_token
-from app.utils.constants import ACCESS_TOKEN_EXPIRE_MINUTES
+from app.utils.constants import ACCESS_TOKEN_EXPIRE_WEEKS
 
 router = APIRouter()
 
@@ -30,7 +30,7 @@ async def login(admin: LoginSchema, db: Session = Depends(get_db)):
             "role": _current_admin.role,
             "access_token": create_access_token(
                 data={"id": str(_current_admin.id), "role": _current_admin.role},
-                expires_delta=timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES)),
+                expires_delta=timedelta(weeks=int(ACCESS_TOKEN_EXPIRE_WEEKS)),
             ),
         },
     ).model_dump()
@@ -52,7 +52,7 @@ async def login(student: LoginSchema, db: Session = Depends(get_db)):
             "role": _current_student.role,
             "access_token": create_access_token(
                 data={"id": str(_current_student.id), "role": _current_student.role},
-                expires_delta=timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES)),
+                expires_delta=timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_WEEKS)),
             ),
         },
     ).model_dump()
