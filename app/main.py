@@ -48,6 +48,7 @@ async def log_requests(request: Request, call_next):
             except Exception:
                 request_body = None
 
+
         headers = json.dumps(dict(request.headers))
 
         response = await call_next(request)
