@@ -51,8 +51,10 @@ def get_admin_by_id(db: Session, admin_id: uuid.UUID):
 
 def create_admin(db: Session, admin: Admins):
     _admin = get_admin_by_id(db=db, admin_id=admin.id)
-    if _admin:
+    if _admin.role == 'teacher':
         raise HTTPException(status_code=422, detail="Teacher already exists")
+    if _admin.role == 'admin':
+        raise HTTPException(status_code=422, detail="Admin already exists")
     db.add(admin)
     db.commit()
     db.refresh(admin)
