@@ -1,5 +1,5 @@
 import uuid
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, HTTPException
 
 # students/router.py
 from fastapi import APIRouter, File, UploadFile
@@ -10,7 +10,7 @@ from requests import Session
 
 from app.api.schemas import Response
 from app.api.sessians.crud import get_student_by_id
-from app.api.students.crud import get_student
+from app.api.students.crud import get_student, get_students
 from app.db import get_db
 from app.utils.auth_middleware import get_current_student
 
@@ -35,10 +35,11 @@ async def get_student_by_id_route(
         current_student: dict = Depends(get_current_student),
 ):
     _student = get_student_by_id(db, current_student["id"])
+    if not _student:
+        raise HTTPException(status_code=401, detail="Student not found")
     return Response(
         code=200, success=True, message="success", data=_student
     ).model_dump()
-
 
 @router.get("/get_student/{student_id}")
 async def get_student_by_id_route(

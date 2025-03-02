@@ -3,7 +3,7 @@ from datetime import timedelta, datetime
 # import jwt
 from jose import jwt, JWTError
 
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Security
 from fastapi.security import OAuth2PasswordBearer
 from jwt import PyJWTError
 
@@ -11,9 +11,9 @@ from app.utils.constants import SECRET_KEY, ALGORITHM
 
 app = FastAPI()
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 oauth3_scheme = OAuth2PasswordBearer(tokenUrl="auth/student_login")
-
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 def create_access_token(data: dict, expires_delta: timedelta):
     to_encode = data.copy()
@@ -43,21 +43,38 @@ def get_current_admin(token: str = Depends(oauth3_scheme)):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     return {"id": admin["id"], "role": admin["role"]}
 
+
 def get_current_student(token: str = Depends(oauth2_scheme)):
     student = decode_access_token(token)
     if not student:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     return {"id": student["id"], "role": student["role"]}
 
-def get_current_user(token: str = Depends(oauth2_scheme)):
+
+from fastapi import HTTPException, Security
+from fastapi.security import OAuth2PasswordBearer
+from jose import jwt, JWTError
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")  # Define the token dependency
+
+def get_current_user(token: str = Security(oauth2_scheme)):
+    if not token or token.lower() == "bearer":
+        print("Missing or invalid token")
+        return "Anonymous"  # Instead of raising, return "Anonymous"
+
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: str = payload.get("sub")  # JWT token ichidan foydalanuvchi ID ni olish
+        user_id: str = payload.get("sub")
+
         if user_id is None:
+            print("User not found in token")
             return "Anonymous"
+
         return user_id
-    except JWTError:
-        return "Anonymous e"
+    except JWTError as e:
+        print(f"JWT decoding error: {e}")
+        return "Anonymous"
+
 
 def get_current_user_from_request(authorization: str):
     """Request headerdan JWT tokenni olib, foydalanuvchini aniqlash."""

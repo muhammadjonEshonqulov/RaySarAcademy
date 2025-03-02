@@ -10,25 +10,52 @@ from app.api.admins.crud import (
     get_admin_by_id,
     create_admin,
     delete_admin,
-    update_admin,
+    update_admin, get_admins, get_teachers,
 )
-from app.api.sessians.crud import update_user_temp_role, get_user_temps
+from app.api.sessians.crud import update_user_temp_role, get_user_temps, get_students
 from app.api.students.crud import create_student
 from app.db import get_db
-from app.utils.auth_middleware import get_current_admin
+from app.utils.auth_middleware import get_current_admin, get_current_student
 
 router = APIRouter()
 
 
-@router.get("/admin-me")
+@router.get("/me")
 async def get_admin_by_id_route(
         db: Session = Depends(get_db),
         current_admin: dict = Depends(get_current_admin),
 ):
     _admin = get_admin_by_id(db, current_admin["id"])
+    if not _admin:
+        raise HTTPException(status_code=401, detail="Admin not found")
     return Response(
         code=200, success=True, message="success", data=_admin
     ).model_dump()
+
+
+@router.get("/admins")
+async def admins(
+        db: Session = Depends(get_db),
+        _=Depends(get_current_admin),
+):
+    _admin = get_admins(db)
+    return Response(code=200, success=True, message="success", data=_admin).model_dump()
+
+@router.get("/teachers")
+async def teachers(
+        db: Session = Depends(get_db),
+        _=Depends(get_current_admin),
+):
+    _admin = get_teachers(db)
+    return Response(code=200, success=True, message="success", data=_admin).model_dump()
+
+@router.get("/students")
+async def students(
+        db: Session = Depends(get_db),
+        _=Depends(get_current_student),
+):
+    _students = get_students(db)
+    return Response(code=200, success=True, message="success", data=_students).model_dump()
 
 
 @router.get("/get_admin/{admin_id}")

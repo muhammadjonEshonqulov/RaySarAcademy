@@ -21,7 +21,7 @@ async def login(admin: LoginSchema, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Bunday xodim topilmadi")
     check_password = _current_admin.password == admin.password
     if not check_password:
-        raise HTTPException(status_code=400, detail="Parol notog'ri")
+        raise HTTPException(status_code=401, detail="Parol notog'ri")
     return Response(
         code=200,
         success=True,
@@ -43,7 +43,7 @@ async def login(student: LoginSchema, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Bunday talaba topilmadi")
     check_password = _current_student.password == student.password
     if not check_password:
-        raise HTTPException(status_code=400, detail="Parol notog'ri")
+        raise HTTPException(status_code=401, detail="Parol notog'ri")
     return Response(
         code=200,
         success=True,

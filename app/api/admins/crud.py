@@ -39,7 +39,10 @@ def count_admins(db: Session):
 
 
 def get_admins(db: Session):
-    return db.query(Admins).all()
+    return db.query(Admins).filter(Admins.role == 'admin').all()
+
+def get_teachers(db: Session):
+    return db.query(Admins).filter(Admins.role == 'teacher').all()
 
 
 def get_admin_by_id(db: Session, admin_id: uuid.UUID):

@@ -35,11 +35,16 @@ async def log_requests(request: Request, call_next):
         user_agent = request.headers.get("User-Agent", "Unknown")
 
         user_id = "Anonymous"
-        try:
-            user_id = get_current_user(await request.headers.get("Authorization", ""))
-        except Exception:
-            print("JWT Token orqali foydalanuvchini aniqlashda xatolik", request.headers.get("Authorization", ""))
-            pass
+        # try:
+        # user_id = get_current_user(request.headers.get("Authorization", ""))
+
+        auth_header = request.headers.get("Authorization", "")
+        token = auth_header.replace("Bearer ", "") if auth_header.startswith("Bearer ") else ""
+
+        user_id = get_current_user(token)
+        # except Exception:
+        #     print("JWT Token orqali foydalanuvchini aniqlashda xatolik", request.headers.get("Authorization", ""))
+        #     pass
 
 
         request_body = None
