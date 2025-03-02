@@ -12,7 +12,7 @@ from app.logs.crud import create_request_log
 from app.api.auth.router import router as auth_router
 from app.api.admins.router import router as staff_router
 from app.api.students.router import router as student_router
-from app.utils.auth_middleware import get_current_user
+from app.utils.auth_middleware import get_current_user, decode_access_token, oauth2_scheme
 
 app = FastAPI(title="RaySarAcademy API")
 
@@ -34,19 +34,12 @@ async def log_requests(request: Request, call_next):
         client_ip = request.client.host if request.client else "Unknown"
         user_agent = request.headers.get("User-Agent", "Unknown")
 
-        user_id = "Anonymous"
-        # try:
-        # user_id = get_current_user(request.headers.get("Authorization", ""))
-
         auth_header = request.headers.get("Authorization", "")
         token = auth_header.replace("Bearer ", "") if auth_header.startswith("Bearer ") else ""
-
-        user_id = get_current_user(token)
-        # except Exception:
-        #     print("JWT Token orqali foydalanuvchini aniqlashda xatolik", request.headers.get("Authorization", ""))
-        #     pass
-
-
+        if not token:
+            user = {"id": 'Anonymous'}
+        else:
+            user =  decode_access_token(token)
         request_body = None
         if request.method in ["POST", "PUT"]:
             try:
@@ -59,7 +52,6 @@ async def log_requests(request: Request, call_next):
 
         response = await call_next(request)
 
-        response_body = None
         response_content = b""
         async for chunk in response.body_iterator:
             response_content += chunk
@@ -83,7 +75,7 @@ async def log_requests(request: Request, call_next):
             request_body=request_body,
             response_body=response_body,
             headers=headers,
-            user_id=user_id
+            user_id=user["id"]
         )
 
         return response

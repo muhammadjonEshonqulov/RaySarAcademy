@@ -36,7 +36,6 @@ def decode_access_token(token: str):
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-
 def get_current_admin(token: str = Depends(oauth3_scheme)):
     admin = decode_access_token(token)
     if not admin:
@@ -58,6 +57,7 @@ from jose import jwt, JWTError
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")  # Define the token dependency
 
 def get_current_user(token: str = Security(oauth2_scheme)):
+    print("token is  ", token)
     if not token or token.lower() == "bearer":
         print("Missing or invalid token")
         return "Anonymous"  # Instead of raising, return "Anonymous"
