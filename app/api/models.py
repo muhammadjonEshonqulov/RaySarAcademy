@@ -40,6 +40,17 @@ class Students(Base):
 
 Base.metadata.create_all(bind=engine)
 
+class Groups(Base):
+    __tablename__ = "groups"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name = Column(String, index=True, nullable=True)
+    science_name = Column(String, index=True, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.now)
+    updated_at = Column(DateTime)
+
+Base.metadata.create_all(bind=engine)
+
 class Admins(Base):
     __tablename__ = "admins"
 

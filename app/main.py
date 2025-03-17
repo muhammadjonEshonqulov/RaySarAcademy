@@ -11,6 +11,7 @@ from app.db import SessionLocal
 from app.logs.crud import create_request_log
 from app.api.auth.router import router as auth_router
 from app.api.admins.router import router as staff_router
+from app.api.groups.router import router as group_router
 from app.api.students.router import router as student_router
 from app.utils.auth_middleware import get_current_user, decode_access_token, oauth2_scheme
 
@@ -86,6 +87,7 @@ async def log_requests(request: Request, call_next):
 
 app.include_router(auth_router, prefix="/auth", tags=["Auth"])
 app.include_router(staff_router, prefix="/admin", tags=["Admins"])
+app.include_router(group_router, prefix="/admin", tags=["Groups"])
 app.include_router(student_router, prefix="/student", tags=["Student"])
 
 from mangum import Mangum

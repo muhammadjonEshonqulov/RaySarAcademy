@@ -47,6 +47,16 @@ class AdminsSchema(BaseModel):
     created_at: datetime = None
     updated_at: Optional[datetime] = None
 
+class GroupsSchema(BaseModel):
+    id: uuid.UUID = None
+    name: str = None
+    science_name: str = None
+    created_at: datetime = None
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
 
 class Response(BaseModel, Generic[T]):
     code: int
