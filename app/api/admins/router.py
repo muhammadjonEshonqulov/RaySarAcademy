@@ -20,17 +20,17 @@ from app.utils.auth_middleware import get_current_admin, get_current_student
 router = APIRouter()
 
 
-@router.get("/me")
-async def get_admin_by_id_route(
-        db: Session = Depends(get_db),
-        current_admin: dict = Depends(get_current_admin),
-):
-    _admin = get_admin_by_id(db, current_admin["id"])
-    if not _admin:
-        raise HTTPException(status_code=401, detail="Admin not found")
-    return Response(
-        code=200, success=True, message="success", data=_admin
-    ).model_dump()
+# @router.get("/me")
+# async def get_admin_by_id_route(
+#         db: Session = Depends(get_db),
+#         current_admin: dict = Depends(get_current_admin),
+# ):
+#     _admin = get_admin_by_id(db, current_admin["id"])
+#     if not _admin:
+#         raise HTTPException(status_code=401, detail="Admin not found")
+#     return Response(
+#         code=200, success=True, message="success", data=_admin
+#     ).model_dump()
 
 
 @router.get("/admins")

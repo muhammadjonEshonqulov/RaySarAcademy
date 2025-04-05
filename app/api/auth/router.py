@@ -3,11 +3,13 @@ from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.api.admins.crud import get_admin_by_id
 from app.api.auth.crud import get_admin_from_by_login, get_student_from_by_login
 from app.api.models import Students, Admins, UsersTemp
 from app.api.schemas import LoginSchema, Response, StudentSchema
+from app.api.sessians.crud import get_student_by_id
 from app.db import get_db
-from app.utils.auth_middleware import create_access_token
+from app.utils.auth_middleware import create_access_token, get_current_login
 from app.utils.constants import ACCESS_TOKEN_EXPIRE_WEEKS
 
 router = APIRouter()
@@ -95,3 +97,24 @@ async def register(student: StudentSchema, db: Session = Depends(get_db)):
         "message": "Successfully registered",
         "data": new_user_temp,
     }
+
+
+@router.get("/me")
+async def get_admin_by_id_route(
+        # role: str,
+        db: Session = Depends(get_db),
+        current_admin: dict = Depends(get_current_login),
+):
+    if current_admin["role"] == 'student':
+        _admin = get_student_by_id(db, current_admin["id"])
+    elif current_admin["role"] == 'admin' or current_admin["role"] == 'superadmin':
+        _admin = get_admin_by_id(db, current_admin["id"])
+    else:
+        raise HTTPException(status_code=422, detail='role mavjud emas')
+
+    if not _admin:
+        raise HTTPException(status_code=422, detail='Foydalanuvchi topilmadi')
+    else:
+        return Response(
+            code=200, success=True, message="success", data=_admin
+        ).model_dump()
