@@ -41,6 +41,7 @@ async def admins(
     _admin = get_admins(db)
     return Response(code=200, success=True, message="success", data=_admin).model_dump()
 
+
 @router.get("/teachers")
 async def teachers(
         db: Session = Depends(get_db),
@@ -48,6 +49,7 @@ async def teachers(
 ):
     _admin = get_teachers(db)
     return Response(code=200, success=True, message="success", data=_admin).model_dump()
+
 
 @router.get("/students")
 async def students(
@@ -84,16 +86,14 @@ async def set_role(
         _student = Students(id=use_temp_id, name=_user_temp.name, surname=_user_temp.surname,
                             updated_at=_user_temp.updated_at, role=role,
                             created_at=_user_temp.created_at, password=_user_temp.password,
-                            address=_user_temp.address, phone_number=_user_temp.phone_number,
-                            date_birth=_user_temp.date_birth, gender=_user_temp.gender)
+                            phone_number=_user_temp.phone_number)
 
         _user_temp = create_student(db, _student)
     else:
         _admin = Admins(id=use_temp_id, name=_user_temp.name, surname=_user_temp.surname,
                         updated_at=_user_temp.updated_at, role=role,
-                        created_at=_user_temp.created_at, address=_user_temp.address,
-                        phone_number=_user_temp.phone_number, password=_user_temp.password,
-                        date_birth=_user_temp.date_birth, gender=_user_temp.gender)
+                        created_at=_user_temp.created_at, phone_number=_user_temp.phone_number,
+                        password=_user_temp.password)
 
         _user_temp = create_admin(db, _admin)
 
@@ -125,10 +125,7 @@ async def get_Admins_route(
                 "id": admin.id,
                 "name": admin.name,
                 "surname": admin.surname,
-                "date_birth": admin.date_birth,
-                "address": admin.address,
                 "phone_number": admin.phone_number,
-                "gender": admin.gender,
                 "created_at": admin.created_at,
                 "updated_at": admin.updated_at,
             }

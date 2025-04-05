@@ -1,8 +1,5 @@
 import datetime
 import uuid
-from typing import Optional
-
-from fastapi import HTTPException
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 

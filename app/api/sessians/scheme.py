@@ -153,7 +153,6 @@ class StudentInfoSchema(BaseModel):
     passport_number: Optional[str] = None
     email: Optional[str] = None
     phone: Optional[str] = None
-    gender: Optional[CodeNameModel] = None
     university: Optional[str] = None
     specialty: Optional[SpecialtyModel] = None
     studentStatus: Optional[CodeNameModel] = None
@@ -166,7 +165,6 @@ class StudentInfoSchema(BaseModel):
     level: Optional[LevelModel] = None
     semester: Optional[SemesterModel] = None
     password_valid: Optional[bool] = None
-    address: Optional[str] = None
     country: Optional[CountryModel] = None
     province: Optional[ProvinceModel] = None
     district: Optional[DistrictModel] = None

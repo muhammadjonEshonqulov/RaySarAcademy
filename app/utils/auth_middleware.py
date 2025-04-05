@@ -23,6 +23,14 @@ def create_access_token(data: dict, expires_delta: timedelta):
     return encoded_jwt
 
 
+def get_current_login(token: str = Depends(oauth3_scheme)):
+    admin = decode_access_token(token)
+    print('admin==>', admin)
+    if not admin:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    else:
+        return {"id": admin["id"], "role": admin["role"]}
+
 def decode_access_token(token: str):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -35,6 +43,7 @@ def decode_access_token(token: str):
     #     raise HTTPException(status_code=401, detail="Invalid token")
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid token")
+
 
 def get_current_admin(token: str = Depends(oauth3_scheme)):
     admin = decode_access_token(token)
