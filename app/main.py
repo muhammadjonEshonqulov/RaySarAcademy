@@ -8,7 +8,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 
 from app.db import SessionLocal
-from app.logs.crud import create_request_log
 from app.api.auth.router import router as auth_router
 from app.api.admins.router import router as staff_router
 from app.api.groups.router import router as group_router
@@ -25,67 +24,67 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.middleware("http")
-async def log_requests(request: Request, call_next):
-    start_time = time.time()
-    db = SessionLocal()
-
-    try:
-
-        client_ip = request.client.host if request.client else "Unknown"
-        user_agent = request.headers.get("User-Agent", "Unknown")
-
-        auth_header = request.headers.get("Authorization", "")
-        token = auth_header.replace("Bearer ", "")
-        try:
-            user = get_current_login(token)
-            user_id = user.get("id", "Anonymous")
-        except Exception as e:
-            print("JWT Token orqali foydalanuvchini aniqlashda xatolik", e, auth_header)
-            user_id = "Anonymous"
-
-        request_body = None
-        if request.method in ["POST", "PUT"]:
-            try:
-                request_body_bytes = await request.body()
-                request_body = request_body_bytes.decode("utf-8") if request_body_bytes else None
-            except Exception:
-                request_body = None
-
-        headers = json.dumps(dict(request.headers))
-
-        response = await call_next(request)
-
-        response_body = None
-        response_content = b""
-        async for chunk in response.body_iterator:
-            response_content += chunk
-        response_body = response_content.decode("utf-8") if response_content else None
-
-        response = Response(
-            content=response_content,
-            status_code=response.status_code,
-            headers=dict(response.headers),
-            media_type=response.media_type
-        )
-
-        create_request_log(
-            db=db,
-            method=request.method,
-            url=str(request.url.path),
-            status_code=response.status_code,
-            processing_time=time.time() - start_time,
-            ip_address=client_ip,
-            user_agent=user_agent,
-            request_body=request_body,
-            response_body=response_body,
-            headers=headers,
-            user_id=user_id
-        )
-
-        return response
-    finally:
-        db.close()
+# @app.middleware("http")
+# async def log_requests(request: Request, call_next):
+#     start_time = time.time()
+#     db = SessionLocal()
+#
+#     try:
+#
+#         client_ip = request.client.host if request.client else "Unknown"
+#         user_agent = request.headers.get("User-Agent", "Unknown")
+#
+#         auth_header = request.headers.get("Authorization", "")
+#         token = auth_header.replace("Bearer ", "")
+#         try:
+#             user = get_current_login(token)
+#             user_id = user.get("id", "Anonymous")
+#         except Exception as e:
+#             print("JWT Token orqali foydalanuvchini aniqlashda xatolik", e, auth_header)
+#             user_id = "Anonymous"
+#
+#         request_body = None
+#         if request.method in ["POST", "PUT"]:
+#             try:
+#                 request_body_bytes = await request.body()
+#                 request_body = request_body_bytes.decode("utf-8") if request_body_bytes else None
+#             except Exception:
+#                 request_body = None
+#
+#         headers = json.dumps(dict(request.headers))
+#
+#         response = await call_next(request)
+#
+#         response_body = None
+#         response_content = b""
+#         async for chunk in response.body_iterator:
+#             response_content += chunk
+#         response_body = response_content.decode("utf-8") if response_content else None
+#
+#         response = Response(
+#             content=response_content,
+#             status_code=response.status_code,
+#             headers=dict(response.headers),
+#             media_type=response.media_type
+#         )
+#
+#         create_request_log(
+#             db=db,
+#             method=request.method,
+#             url=str(request.url.path),
+#             status_code=response.status_code,
+#             processing_time=time.time() - start_time,
+#             ip_address=client_ip,
+#             user_agent=user_agent,
+#             request_body=request_body,
+#             response_body=response_body,
+#             headers=headers,
+#             user_id=user_id
+#         )
+#
+#         return response
+#     finally:
+#         db.close()
 
 
 app.include_router(auth_router, prefix="/auth", tags=["Auth"])
